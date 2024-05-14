@@ -1,21 +1,17 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = new Sequelize("mysql://root:Hiep2410@127.0.0.1/DLCT");
 
-const Branch = sequelize.define(
-  "branch",
+const ServicesType = sequelize.define(
+  "servicetype",
   {
-    Branch_id: {
+    Service_type_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    Address: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    Hotline: {
-      type: DataTypes.STRING,
-      allowNull: true,
+    Name: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
     },
     IsDeleted: {
       type: DataTypes.BOOLEAN,
@@ -23,9 +19,9 @@ const Branch = sequelize.define(
     },
   },
   {
-    tableName: "branch",
+    tableName: "servicetype",
     timestamps: false,
   }
 );
 
-module.exports = Branch;
+module.exports = ServicesType;

@@ -12,5 +12,12 @@ router.use(
   "/blogCategogry",
   require("../assets/container/BlogCategory/blogCategory")
 );
+router.use("/blog", require("../assets/container/Blog/Blog"));
+router.use("/branch", require("../assets/container/Branch/branch"));
+router.use(
+  "/services-type",
+  require("../assets/container/ServicesType/servicesType")
+);
+router.use("/services", require("../assets/container/Services/services"));
 
 module.exports = router;

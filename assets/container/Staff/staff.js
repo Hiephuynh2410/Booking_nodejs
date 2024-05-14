@@ -101,11 +101,29 @@ router.post("/login", async (req, res) => {
   }
 });
 
-//change Password for user
-router.put("/changePassword", async (req, res) => {
+router.put("/changePassword/:id", async (req, res) => {
   try {
+    const { id } = req.params;
+    const { Password } = req.body;
+
+    if (!Password) {
+      return res.status(400).json({ message: "New password is required" });
+    }
+
+    const staff = await Staff.findByPk(id);
+    if (!staff) {
+      return res.status(404).json({ message: "Staff not found" });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(Password, 10);
+
+    await staff.update({ Password: hashedNewPassword });
+
+    res.json({ message: "Password changed successfully" });
   } catch (error) {
+    console.error(error);
     res.status(500).send("Internal Server Error");
   }
 });
+
 module.exports = router;
