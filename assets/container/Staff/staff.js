@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
   try {
     const staffs = await Staff.findAll({
       where: {
-        IsDisabled: true,
+        IsDisabled: true, //1:true, 0: false
       },
       include: [
         {
@@ -102,5 +102,10 @@ router.post("/login", async (req, res) => {
 });
 
 //change Password for user
-router.put("/changePassword", async (req, res) => {});
+router.put("/changePassword", async (req, res) => {
+  try {
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+});
 module.exports = router;
