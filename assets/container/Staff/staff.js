@@ -8,10 +8,10 @@ const {
   loginStaff,
   changeStaffPassword,
   deleteStaff,
+  restoreStaff,
 } = require("../../../Services/Staff.services");
 
-// Get all Staff with IsDisabled = true
-router.get("/", async (req, res) => {
+router.get("/", MyAuthorized, async (req, res) => {
   try {
     const staffs = await getAllDisabledStaff();
     res.json(staffs);
@@ -48,7 +48,7 @@ router.post("/login", async (req, res) => {
 });
 
 //change password
-router.put("/changePassword/:id", async (req, res) => {
+router.put("/changePassword/:id", MyAuthorized, async (req, res) => {
   try {
     const { id } = req.params;
     const { Password } = req.body;
@@ -62,7 +62,7 @@ router.put("/changePassword/:id", async (req, res) => {
 });
 
 //delete staff
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", MyAuthorized, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -74,4 +74,16 @@ router.delete("/delete/:id", async (req, res) => {
   }
 });
 
+//restore Staff
+router.patch("/restore/:id", MyAuthorized, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await restoreStaff(id);
+    console.log(result);
+    res.json(result);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+});
 module.exports = router;

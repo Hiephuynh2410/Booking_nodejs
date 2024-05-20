@@ -1,59 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const ProductType = require("../../../models/ProductType.model");
+const MyAuthorize = require("../../../JwtToken/MyAuthorized");
+const {
+  getAllProductType,
+  createProductType,
+  updateProductType,
+  deleteProductType,
+  restoreProductType,
+} = require("../../../Services/ProductType.services");
 
 // Get all Staff with IsDisabled = true
-router.get("/", async (req, res) => {
+router.get("/", MyAuthorize, async (req, res) => {
   try {
-    const productTypes = await ProductType.findAll({
-      where: {
-        IsDeleted: true, //1:true, 0: false
-      },
-      attributes: { exclude: ["IsDeleted"] },
-    });
-    res.json(productTypes);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-//create
-router.post("/create", async (req, res) => {
-  try {
-    const { Name } = req.body;
-    if (!Name) {
-      return res.status(400).json({ message: "Name is required" });
-    }
-    const newProductType = await ProductType.create({
-      Name,
-      IsDeleted: true,
-    });
-    res.status(201).json(newProductType);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-//update
-router.put("/update/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { Name } = req.body;
-
-    if (!Name) {
-      return res.status(400).json({ message: "Name is required" });
-    }
-
-    const productType = await ProductType.findByPk(id);
-    if (!productType) {
-      return res.status(404).json({ message: "Product type not found" });
-    }
-
-    productType.Name = Name;
-    await productType.save();
-
+    const productType = await getAllProductType(req, res);
     res.json(productType);
   } catch (error) {
     console.error(error);
@@ -61,40 +20,54 @@ router.put("/update/:id", async (req, res) => {
   }
 });
 
-//deleted
-router.delete("/delete/:id", async (req, res) => {
+// //create
+router.post("/create", MyAuthorize, async (req, res) => {
   try {
-    const { id } = req.params;
+    const newProductType = await createProductType(req.body);
+    res.status(201).json(newProductType);
+  } catch (error) {
+    console.error(error);
 
-    const productType = await ProductType.findByPk(id);
-    if (!productType) {
-      return res.status(404).json({ message: "Product type not found" });
+    if (error.message === "Name is required") {
+      return res.status(400).json({ message: error.message });
     }
 
-    productType.IsDeleted = false;
-    await productType.save();
+    res.status(500).send("Internal Server Error");
+  }
+});
 
-    res.json({ message: `Product type ${id} deleted successfully` });
+// //update
+router.put("/update/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedProductType = await updateProductType(id, req.body);
+    res.json(updatedProductType);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-//restore
+// //deleted
+router.delete("/delete/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await deleteProductType(id);
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// //restore
 router.patch("/restore/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const productType = await ProductType.findByPk(id);
-    if (!productType) {
-      return res.status(404).json({ message: "Product type not found" });
-    }
-
-    productType.IsDeleted = true;
-    await productType.save();
-
-    res.json({ message: `Product type ${id} restored successfully` });
+    const result = await restoreProductType(id);
+    res.json(result);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");

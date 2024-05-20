@@ -8,11 +8,12 @@ const MyAuthorized = (req, res, next) => {
     return res.status(401).json({ message: "Authorization token is missing" });
   }
 
-  jwt.verify(token, SECRECT_KEY, (err, decoded) => {
+  jwt.verify(token.split(" ")[1], SECRECT_KEY, (err, decoded) => {
     if (err) {
       console.error("Token verification error:", err);
       return res.status(401).json({ message: "Invalid token" });
     }
+    console.log("Decoded token:", decoded);
     next();
   });
 };

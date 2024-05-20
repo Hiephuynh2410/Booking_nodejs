@@ -1,16 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const ServicesType = require("../../../models/serviceType.model");
+const MyAuthorized = require("../../../JwtToken/MyAuthorized");
+const {
+  getAllServicesType,
+  createServicesType,
+  updateServicesType,
+  deleteServicesType,
+  restoreServicesType,
+} = require("../../../Services/ServicesType.services");
 
+router.use(MyAuthorized);
 //get all
 router.get("/", async (req, res) => {
   try {
-    const servicesType = await ServicesType.findAll({
-      where: {
-        IsDeleted: true, //1:true, 0: false
-      },
-      attributes: { exclude: ["IsDeleted"] },
-    });
+    const servicesType = await getAllServicesType(req, res); // Pass req and res objects
     res.json(servicesType);
   } catch (error) {
     console.error(error);
@@ -18,88 +21,65 @@ router.get("/", async (req, res) => {
   }
 });
 
-//create
+// //create
 router.post("/create", async (req, res) => {
   try {
     const { Name } = req.body;
-    if (!Name) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-    const newServicesType = await ServicesType.create({
-      Name,
-      IsDeleted: true,
-    });
+    const newServicesType = await createServicesType(Name);
     res.status(201).json(newServicesType);
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    if (error.message === "Missing required fields") {
+      return res.status(400).json({ message: error.message });
+    }
     res.status(500).send("Internal Server Error");
   }
 });
 
-//update
+// //update
 router.put("/update/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { Name } = req.body;
 
-    if (!Name) {
-      return res.status(400).json({ message: "Name are required" });
-    }
+    const updatedServicesType = await updateServicesType(id, Name);
 
-    const servicesType = await ServicesType.findByPk(id);
-
-    if (!servicesType) {
-      return res.status(404).json({ message: "servicesType not found" });
-    }
-
-    await servicesType.update({
-      Name,
-    });
-
-    res.json(servicesType);
+    res.status(200).json(updatedServicesType);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    if (
+      error.message === "Name is required" ||
+      error.message === "Services type not found"
+    ) {
+      return res.status(400).json({ message: error.message });
+    }
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-//deleted
+// //deleted
 router.delete("/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const servicesType = await ServicesType.findByPk(id);
-    if (!servicesType) {
-      return res.status(404).json({ message: "servicesType not found" });
-    }
-
-    servicesType.IsDeleted = false;
-    await servicesType.save();
-
-    res.json({ message: `servicesType ${id} deleted successfully` });
+    const result = await deleteServicesType(id);
+    res.json(result);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
-//restore
+// //restore
 router.patch("/restore/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const servicesType = await ServicesType.findByPk(id);
-    if (!servicesType) {
-      return res.status(404).json({ message: "servicesType not found" });
-    }
-
-    servicesType.IsDeleted = true;
-    await servicesType.save();
-
-    res.json({ message: `servicesType ${id} restored successfully` });
+    const result = await restoreServicesType(id);
+    res.json(result);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
 module.exports = router;

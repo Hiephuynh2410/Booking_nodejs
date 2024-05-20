@@ -11,6 +11,19 @@ async function isUsernameUnique(username) {
   }
 }
 
+async function RegexPassword(password) {
+  try {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,32}$/;
+
+    const isValid = regex.test(password);
+
+    return isValid;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   isUsernameUnique,
+  RegexPassword,
 };

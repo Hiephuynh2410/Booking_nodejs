@@ -1,116 +1,80 @@
 const express = require("express");
 const router = express.Router();
-const Services = require("../../../models/services.model");
-const ServicesType = require("../../../models/serviceType.model");
+const MyAuthorized = require("../../../JwtToken/MyAuthorized");
+const {
+  GetAllServices,
+  createService,
+  updateServices,
+  deleteServices,
+  restoreServices,
+} = require("../../../Services/Services.services");
 
+router.use(MyAuthorized);
 //get all
 router.get("/", async (req, res) => {
   try {
-    const servcies = await Services.findAll({
-      where: {
-        IsDeleted: true,
-      },
-      include: [
-        {
-          model: ServicesType,
-          attributes: ["Service_type_id", "Name"],
-        },
-      ],
-    });
-    res.json(servcies);
+    const services = await GetAllServices(req, res);
+    res.json(services);
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-//create
+// //create
 router.post("/create", async (req, res) => {
   try {
     const { Name, Price, Service_type_id } = req.body;
 
-    if (!Name || !Price || !Service_type_id) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-    const createdAt = new Date();
-
-    const newService = await Services.create({
-      Name,
-      Price,
-      Service_type_id,
-      Created_at: createdAt,
-      IsDeleted: true,
-    });
+    const newService = await createService(Name, Price, Service_type_id);
     res.status(201).json(newService);
   } catch (error) {
     console.error(error);
+    if (error.message === "Missing required fields") {
+      return res.status(400).json({ message: error.message });
+    }
     res.status(500).send("Internal Server Error");
   }
 });
 
-//update
+// //update
 router.put("/update/:id", async (req, res) => {
   try {
-    const servicesId = req.params.id;
-    const { Name, Price, Service_type_id } = req.body;
+    const { id } = req.params;
+    const { Name, Price, UpdateAt } = req.body;
 
-    const Updated_at = new Date();
+    const updatedServices = await updateServices(id, Name, Price, UpdateAt);
 
-    const services = await Services.findByPk(servicesId);
-    if (!services) {
-      return res.status(404).json({ message: "services not found" });
-    }
-
-    services.Name = Name || services.Name;
-    services.Price = Price || services.Price;
-    services.Service_type_id = Service_type_id || services.Service_type_id;
-    services.Updated_at = Updated_at;
-    await services.save();
-
-    res.json(services);
+    res.status(200).json(updatedServices);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-//delete
+// //delete
 router.delete("/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const services = await Services.findByPk(id);
-    if (!services) {
-      return res.status(404).json({ message: "services not found" });
-    }
-
-    services.IsDeleted = false;
-    await services.save();
-
-    res.json({ message: `services ${id} deleted successfully` });
+    const result = await deleteServices(id);
+    res.json(result);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-//restore
+// //restore
 router.patch("/restore/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const services = await Services.findByPk(id);
-    if (!services) {
-      return res.status(404).json({ message: "services not found" });
-    }
-
-    services.IsDeleted = true;
-    await services.save();
-
-    res.json({ message: `services type ${id} restored successfully` });
+    const result = await restoreServices(id);
+    res.json(result);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 module.exports = router;
