@@ -1,18 +1,16 @@
 const BlogCategory = require("../models/blogCategory.model");
 
-async function GetAllBlogCate(res) {
+async function GetAllBlogCate() {
   try {
     const blogCategogry = await BlogCategory.findAll({
       where: {
-        IsDeleted: true, //1:true, 0: false
+        IsDeleted: true,
       },
       attributes: { exclude: ["IsDeleted"] },
     });
     return blogCategogry;
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "get all failed: " + error.message });
+    throw new Error("get all failed: " + error.message);
   }
 }
 
@@ -46,8 +44,50 @@ async function updateBlogCate(id, updateData) {
     const updatedBlogCate = await blogCategory.update(updateData);
     return updatedBlogCate;
   } catch (error) {
-    throw new Error("Update failed: " + error.message);
+    return res
+      .status(500)
+      .json({ message: "update failed: " + error.message });
   }
 }
 
-module.exports = { GetAllBlogCate, CreateBlogCate, updateBlogCate };
+async function deleteBlogCate(id, res) {
+  try {
+    const blogcate = await BlogCategory.findByPk(id);
+
+    if (!blogcate) {
+      throw new Error("blogcate not found");
+    }
+
+    blogcate.IsDeleted = false;
+
+    await blogcate.save();
+
+    return { success: true, message: "blogcate deleted successfully" };
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "delete failed: " + error.message });
+  }
+}
+
+async function restoreBlogCate(id, res) {
+  try {
+    const blogcate = await BlogCategory.findByPk(id);
+
+    if (!blogcate) {
+      throw new Error("blogcate not found");
+    }
+
+    blogcate.IsDeleted = true;
+
+    await blogcate.save();
+
+    return { success: true, message: "blogcate restore successfully" };
+  } catch (error) {
+    return res
+    .status(500)
+    .json({ message: "restore failed: " + error.message });
+  }
+}
+
+module.exports = { GetAllBlogCate, CreateBlogCate, updateBlogCate, deleteBlogCate, restoreBlogCate };
