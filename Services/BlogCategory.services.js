@@ -44,9 +44,7 @@ async function updateBlogCate(id, updateData) {
     const updatedBlogCate = await blogCategory.update(updateData);
     return updatedBlogCate;
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "update failed: " + error.message });
+    return res.status(500).json({ message: "update failed: " + error.message });
   }
 }
 
@@ -64,9 +62,7 @@ async function deleteBlogCate(id, res) {
 
     return { success: true, message: "blogcate deleted successfully" };
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "delete failed: " + error.message });
+    return res.status(500).json({ message: "delete failed: " + error.message });
   }
 }
 
@@ -85,9 +81,15 @@ async function restoreBlogCate(id, res) {
     return { success: true, message: "blogcate restore successfully" };
   } catch (error) {
     return res
-    .status(500)
-    .json({ message: "restore failed: " + error.message });
+      .status(500)
+      .json({ message: "restore failed: " + error.message });
   }
 }
 
-module.exports = { GetAllBlogCate, CreateBlogCate, updateBlogCate, deleteBlogCate, restoreBlogCate };
+module.exports = {
+  GetAllBlogCate,
+  CreateBlogCate,
+  updateBlogCate,
+  deleteBlogCate,
+  restoreBlogCate,
+};

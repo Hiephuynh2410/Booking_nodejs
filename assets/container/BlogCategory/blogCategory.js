@@ -6,7 +6,7 @@ const {
   CreateBlogCate,
   updateBlogCate,
   deleteBlogCate,
-  restoreBlogCate
+  restoreBlogCate,
 } = require("../../../Services/BlogCategory.services");
 // Get all blogCategory
 router.use(MyAuthorize);
@@ -53,7 +53,7 @@ router.delete("/delete/:id", async (req, res) => {
     console.log(result);
     res.json(result);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).send("Internal Server Error");
   }
 });

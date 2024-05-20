@@ -1,27 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const Blog = require("../../../models/blog.model");
-const BlogCategory = require("../../../models/blogCategory.model");
-const Staff = require("../../../models/staff.model");
+const MyAuthorizer = require("../../../JwtToken/MyAuthorized");
+const {
+  GetAllBlog,
+  createBlog,
+  updateBlog,
+  deleteBlog,
+  restoreblog,
+} = require("../../../Services/Blog.services");
 
+router.use(MyAuthorizer);
 //get all
 router.get("/", async (req, res) => {
   try {
-    const blog = await Blog.findAll({
-      where: {
-        IsDeleted: true,
-      },
-      include: [
-        {
-          model: BlogCategory,
-          attributes: ["Blog_category_id", "Title", "Description"],
-        },
-        {
-          model: Staff,
-          attributes: ["Name", "Phone", "Avatar", "Email"],
-        },
-      ],
-    });
+    const blog = await GetAllBlog(req, res);
     res.json(blog);
   } catch (error) {
     console.log(error);
@@ -32,87 +24,49 @@ router.get("/", async (req, res) => {
 //create
 router.post("/create", async (req, res) => {
   try {
-    const { Title, Body, Thumbnail, Blog_category_id, Staff_id } = req.body;
-
-    if (!Title || !Body || !Blog_category_id || !Staff_id) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    const newBlogPost = await Blog.create({
-      Title,
-      Body,
-      Thumbnail,
-      Blog_category_id,
-      Staff_id,
-      Date_time: new Date(),
-      IsDeleted: true,
-    });
-
-    res.status(201).json(newBlogPost);
+    const newBlog = await createBlog(req.body, res);
+    res.status(201).json(newBlog);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-//update
+// //update
 router.put("/update/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const { Title, Body, Thumbnail } = req.body;
-
-    const blog = await Blog.findByPk(id);
-    if (!blog) {
-      return res.status(404).json({ message: "Blog not found" });
-    }
-
-    blog.Title = Title || blog.Title;
-    blog.Body = Body || blog.Body;
-    blog.Thumbnail = Thumbnail || blog.Thumbnail;
-
-    await blog.save();
-    res.json({ message: "Update success", blog });
+    const BlogId = req.params.id;
+    const updateData = req.body;
+    const updateblog = await updateBlog(BlogId, updateData);
+    res.json(updateblog);
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-//delete
+// //delete
 router.delete("/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const blog = await Blog.findByPk(id);
-    if (!blog) {
-      return res.status(404).json({ message: "blog not found" });
-    }
-
-    blog.IsDeleted = false;
-    await blog.save();
-
-    res.json({ message: `blog ${id} deleted successfully` });
+    const result = await deleteBlog(id);
+    console.log(result);
+    res.json(result);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-//restore
+// //restore
 router.patch("/restore/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const blog = await Blog.findByPk(id);
-    if (!blog) {
-      return res.status(404).json({ message: "blog not found" });
-    }
-
-    blog.IsDeleted = true;
-    await blog.save();
-
-    res.json({ message: `blog ${id} restored successfully` });
+    const result = await restoreblog(id);
+    console.log(result);
+    res.json(result);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
