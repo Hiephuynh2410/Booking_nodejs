@@ -1,69 +1,45 @@
 const express = require("express");
 const router = express.Router();
-const Branch = require("../../../models/branch.model");
+const MyAuthorize = require("../../../JwtToken/MyAuthorized");
+const {
+  GetAllBranch,
+  createbranch,
+  deletebranch,
+  restorebranch,
+  updateBranch,
+} = require("../../../Services/Branch.services");
+const { json } = require("sequelize");
 
+router.use(MyAuthorize);
 //get all
 router.get("/", async (req, res) => {
   try {
-    const branches = await Branch.findAll({
-      where: {
-        IsDeleted: true,
-      },
-      attributes: { exclude: ["IsDeleted"] },
-    });
-    res.json(branches);
+    const branch = await GetAllBranch(req, res);
+    res.json(branch);
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-//create
+// //create
 router.post("/create", async (req, res) => {
   try {
-    const { Address, Hotline } = req.body;
-
-    if (!Hotline || !Address) {
-      return res
-        .status(400)
-        .json({ message: "Please provide all necessary information" });
-    }
-
-    const newBranch = await Branch.create({
-      Hotline,
-      Address,
-      IsDeleted: true,
-    });
-
-    res.status(201).json(newBranch);
+    const newbrnach = await createbranch(req.body, res);
+    return json(newbrnach);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-//update
+// //update
 router.put("/update/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const { Address, Hotline } = req.body;
-
-    if (!Address || !Hotline) {
-      return res.status(400).json({ message: "Address, Hotline are required" });
-    }
-
-    const branch = await Branch.findByPk(id);
-
-    if (!branch) {
-      return res.status(404).json({ message: "branch not found" });
-    }
-
-    await branch.update({
-      Address,
-      Hotline,
-    });
-
-    res.json({ message: "update success", branch });
+    const id = req.params.id;
+    const updateData = req.body;
+    const updatedBranch = await updateBranch(id, updateData);
+    res.json(updatedBranch);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
@@ -74,34 +50,24 @@ router.put("/update/:id", async (req, res) => {
 router.delete("/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const branch = await Branch.findByPk(id);
-    if (!branch) {
-      return res.status(404).json({ message: "branch not found" });
-    }
 
-    branch.IsDeleted = false;
-    await branch.save();
-    res.json({ message: `branch ${id} deleted successfully` });
+    const result = await deletebranch(id);
+    console.log(result);
+    res.json(result);
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-//restore
+// //restore
 router.patch("/restore/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const branch = await Branch.findByPk(id);
-    if (!branch) {
-      return res.status(404).json({ message: "branch not found" });
-    }
-
-    branch.IsDeleted = true;
-    await branch.save();
-
-    res.json({ message: `branch ${id} restored successfully` });
+    const result = await restorebranch(id);
+    console.log(result);
+    res.json(result);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
