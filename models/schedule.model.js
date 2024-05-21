@@ -10,7 +10,7 @@ const Schedule = sequelize.define(
             autoIncrement: true,
         },
         Time: {
-            type: DataTypes.Time,
+            type: DataTypes.TIME,
             allowNull: true,
         },
         IsDeleted: {
