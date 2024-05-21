@@ -21,5 +21,9 @@ router.use(
 router.use("/services", require("../assets/container/Services/services"));
 router.use("/combo", require("../assets/container/Combo/combo"));
 router.use("/schedule", require("../assets/container/Schedule/schedule"));
+router.use(
+    "/scheduleDetail",
+    require("../assets/container/ScheuduleDetail/scheduleDetail")
+);
 
 module.exports = router;
