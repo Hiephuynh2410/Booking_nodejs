@@ -5,7 +5,9 @@ const sequelize = new Sequelize("mysql://root:Hiep2410@127.0.0.1/DLCT");
 const Staff = require("../models/staff.model");
 const Schedule = require("../models/schedule.model");
 
-class ScheduleDetail extends Model {}
+class ScheduleDetail extends Model {
+    Staff;
+}
 
 ScheduleDetail.init(
     {

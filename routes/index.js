@@ -25,5 +25,7 @@ router.use(
     "/scheduleDetail",
     require("../assets/container/ScheuduleDetail/scheduleDetail")
 );
+router.use("/client", require("../assets/container/Client/client"));
+router.use("/booking", require("../assets/container/Booking/Booking"));
 
 module.exports = router;

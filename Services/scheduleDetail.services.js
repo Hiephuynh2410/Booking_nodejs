@@ -65,7 +65,7 @@ async function deleteScheduleDetail(scheduleId, staffId) {
 
         if (affectedRows > 0) {
             return {
-                message: "ScheduleDetail delete successfully",
+                message: "ScheduleDetail deleted successfully",
             };
         } else {
             throw new Error("No ScheduleDetail found to delete");
@@ -73,6 +73,31 @@ async function deleteScheduleDetail(scheduleId, staffId) {
     } catch (error) {
         console.error("Error deleting ScheduleDetail:", error);
         throw new Error("Error deleting ScheduleDetail");
+    }
+}
+
+async function restoreScheduleDetail(scheduleId, staffId) {
+    try {
+        const [affectedRows] = await ScheduleDetail.update(
+            { Status: true },
+            {
+                where: {
+                    Schedule_id: scheduleId,
+                    Staff_id: staffId,
+                },
+            }
+        );
+
+        if (affectedRows > 0) {
+            return {
+                message: "ScheduleDetail restored successfully",
+            };
+        } else {
+            throw new Error("No ScheduleDetail found to restore");
+        }
+    } catch (error) {
+        console.error("Error restoring ScheduleDetail:", error);
+        throw new Error("Error restoring ScheduleDetail");
     }
 }
 
