@@ -1,7 +1,6 @@
 const Product = require("../models/product.model");
 const Provider = require("../models/provider.model");
 const ProductType = require("../models/ProductType.model");
-
 async function GetAllProduct(res) {
     try {
         const products = await Product.findAll({
@@ -134,6 +133,7 @@ async function restoreProduct(id, res) {
             .json({ message: "delete failed: " + error.message });
     }
 }
+
 module.exports = {
     GetAllProduct,
     createProduct,

@@ -46,12 +46,9 @@ async function addToCart(request) {
         if (product.Quantity < quantityToAdd) {
             throw new Error("Not enough stock available.");
         }
-
-        // Subtract quantity from the product
         product.Quantity -= quantityToAdd;
         await product.save();
 
-        // Check if the product is already in the cart
         let existingCartItem = await Cart.findOne({
             where: {
                 user_id: request.user_id,
@@ -60,11 +57,9 @@ async function addToCart(request) {
         });
 
         if (existingCartItem) {
-            // If the product is already in the cart, update the quantity
             existingCartItem.Quantity += quantityToAdd;
             await existingCartItem.save();
         } else {
-            // If the product is not in the cart, create a new cart item
             await Cart.create({
                 user_id: request.user_id,
                 Product_id: request.Product_id,
@@ -72,13 +67,11 @@ async function addToCart(request) {
             });
         }
 
-        // Fetch cart items with product details
         const cartItems = await Cart.findAll({
             where: { user_id: request.user_id },
             include: [{ model: Product }],
         });
 
-        // Calculate total amount
         const totalAmount = cartItems.reduce(
             (sum, cartItem) => sum + cartItem.Quantity * cartItem.Product.Price,
             0
@@ -92,6 +85,7 @@ async function addToCart(request) {
         throw new Error(error.message);
     }
 }
+
 async function removeItemFromCart(userId, productId, quantity) {
     try {
         if (userId <= 0 || productId <= 0 || quantity <= 0) {

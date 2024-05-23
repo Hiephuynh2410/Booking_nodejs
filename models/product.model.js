@@ -32,7 +32,7 @@ const Product = sequelize.define(
             allowNull: false,
         },
         Image: {
-            type: DataTypes.STRING(200),
+            type: DataTypes.STRING(1000),
             allowNull: true,
         },
         Provider_id: {
