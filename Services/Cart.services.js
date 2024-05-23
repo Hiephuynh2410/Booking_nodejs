@@ -5,9 +5,6 @@ const Cart = require("../models/cart.model");
 async function getAllCart() {
     try {
         const carts = await Cart.findAll({
-            where: {
-                IsDeleted: true,
-            },
             include: [
                 {
                     model: Product,
@@ -50,52 +47,40 @@ async function addToCart(request) {
             throw new Error("Not enough stock available.");
         }
 
-        const existingCartItem = await Cart.findOne({
+        // Subtract quantity from the product
+        product.Quantity -= quantityToAdd;
+        await product.save();
+
+        // Check if the product is already in the cart
+        let existingCartItem = await Cart.findOne({
             where: {
                 user_id: request.user_id,
                 Product_id: request.Product_id,
             },
-            include: [{ model: Product }, { model: Client }],
         });
 
-        console.log("Existing cart item:", existingCartItem);
-
         if (existingCartItem) {
-            const newTotalQuantity = existingCartItem.Quantity + quantityToAdd;
-
-            if (product.Quantity < newTotalQuantity) {
-                throw new Error(
-                    "Not enough stock available for the requested quantity."
-                );
-            }
-
-            existingCartItem.Quantity = newTotalQuantity;
+            // If the product is already in the cart, update the quantity
+            existingCartItem.Quantity += quantityToAdd;
             await existingCartItem.save();
         } else {
-            if (product.Quantity >= quantityToAdd) {
-                await Cart.create({
-                    user_id: request.user_id,
-                    Product_id: request.Product_id,
-                    Quantity: quantityToAdd,
-                });
-            } else {
-                throw new Error("Product is out of stock.");
-            }
+            // If the product is not in the cart, create a new cart item
+            await Cart.create({
+                user_id: request.user_id,
+                Product_id: request.Product_id,
+                Quantity: quantityToAdd,
+            });
         }
 
+        // Fetch cart items with product details
         const cartItems = await Cart.findAll({
             where: { user_id: request.user_id },
             include: [{ model: Product }],
         });
 
-        cartItems.forEach((cartItem) => {
-            cartItem.TotalAmount = cartItem.Quantity * cartItem.Product.Price;
-        });
-
-        await Promise.all(cartItems.map((cartItem) => cartItem.save()));
-
+        // Calculate total amount
         const totalAmount = cartItems.reduce(
-            (sum, cartItem) => sum + cartItem.TotalAmount,
+            (sum, cartItem) => sum + cartItem.Quantity * cartItem.Product.Price,
             0
         );
 
@@ -107,4 +92,58 @@ async function addToCart(request) {
         throw new Error(error.message);
     }
 }
-module.exports = { getAllCart, addToCart };
+async function removeItemFromCart(userId, productId, quantity) {
+    try {
+        if (userId <= 0 || productId <= 0 || quantity <= 0) {
+            throw new Error("Invalid request parameters.");
+        }
+
+        const existingCartItem = await Cart.findOne({
+            where: {
+                user_id: userId,
+                Product_id: productId,
+            },
+            include: [{ model: Product }],
+        });
+
+        if (!existingCartItem) {
+            throw new Error("CartItem not found.");
+        }
+
+        const cartQuantity = existingCartItem.Quantity;
+
+        if (quantity > cartQuantity) {
+            throw new Error(
+                `Quantity to remove (${quantity}) exceeds quantity in the cart (${cartQuantity}).`
+            );
+        }
+
+        const productPrice = existingCartItem.Product.Price;
+
+        existingCartItem.Quantity -= quantity;
+        await existingCartItem.save();
+
+        const cartItems = await Cart.findAll({
+            where: { user_id: userId },
+            include: [{ model: Product }],
+        });
+
+        const totalAmount = cartItems.reduce((total, item) => {
+            return total + item.Quantity * item.Product.Price;
+        }, 0);
+
+        existingCartItem.Product.Quantity += quantity;
+        await existingCartItem.Product.save();
+
+        const remainingQuantity = existingCartItem.Quantity;
+
+        return {
+            message: `Product has ${remainingQuantity} left in the cart. Product removed successfully.`,
+            totalAmount: totalAmount.toFixed(2),
+        };
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
+module.exports = { getAllCart, addToCart, removeItemFromCart };
