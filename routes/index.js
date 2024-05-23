@@ -27,5 +27,6 @@ router.use(
 );
 router.use("/client", require("../assets/container/Client/client"));
 router.use("/booking", require("../assets/container/Booking/Booking"));
+router.use("/cart", require("../assets/container/Cart/cart"));
 
 module.exports = router;
