@@ -3,6 +3,8 @@ const Combo = require("../models/combo.model");
 const Staff = require("../models/staff.model");
 const Client = require("../models/client.model");
 const Booking = require("../models/booking.model");
+const ScheduleDetail = require("../models/scheduleDetail.model");
+const Schedule = require("../models/schedule.model");
 
 async function getAllBooking() {
     try {
@@ -22,19 +24,23 @@ async function getAllBooking() {
                 {
                     model: Staff,
                     attributes: ["Staff_id", "Name"],
+                    include: [
+                        {
+                            model: ScheduleDetail,
+                            include: [
+                                {
+                                    model: Schedule,
+                                    attributes: ["Schedule_id", "Time"],
+                                },
+                            ],
+                        },
+                    ],
                 },
                 {
                     model: Client,
                     attributes: ["Client_id", "Name"],
                 },
             ],
-            attributes: {
-                exclude: [
-                    "Password",
-                    "FailedLoginAttempts",
-                    "LastFailedLoginAttempt",
-                ],
-            },
         });
         return bookings;
     } catch (error) {
@@ -55,6 +61,20 @@ async function createBooking(data, res) {
             Combo_id,
         } = data;
 
+        const staffMember = await Staff.findOne({
+            where: {
+                Staff_id: Staff_id,
+                Branch_id: Branch_id,
+            },
+        });
+
+        if (!staffMember) {
+            return res.status(400).json({
+                message:
+                    "Nhân viên không có trong chi nhánh hiện tại vui lòng chọn chi nhánh khác hoặc chọn nhân viên khác.",
+            });
+        }
+
         const created_at = new Date();
         const status = true;
         const newBooking = await Booking.create({
@@ -69,13 +89,15 @@ async function createBooking(data, res) {
             Staff_id,
             Combo_id,
         });
-        return res
-            .status(201)
-            .json({ message: "create successfully", booking: newBooking });
+
+        return res.status(201).json({
+            message: "Booking created successfully",
+            booking: newBooking,
+        });
     } catch (error) {
-        return res
-            .status(500)
-            .json({ message: "Registration failed: " + error.message });
+        return res.status(500).json({
+            message: "Booking creation failed: " + error.message,
+        });
     }
 }
 
@@ -103,11 +125,8 @@ async function restoreBooking(id, res) {
         if (!booking) {
             throw new Error("booking not found");
         }
-
         booking.Status = true;
-
         await booking.save();
-
         return { success: true, message: "booking restore successfully" };
     } catch (error) {
         return res
