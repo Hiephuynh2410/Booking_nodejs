@@ -5,7 +5,8 @@ const Client = require("../models/client.model");
 const Booking = require("../models/booking.model");
 const ScheduleDetail = require("../models/scheduleDetail.model");
 const Schedule = require("../models/schedule.model");
-
+const moment = require("moment");
+const { Op } = require("sequelize");
 async function getAllBooking() {
     try {
         const bookings = await Booking.findAll({
@@ -61,6 +62,16 @@ async function createBooking(data, res) {
             Combo_id,
         } = data;
 
+        const client = await Client.findOne({
+            where: { Client_id: Client_id },
+        });
+        if (!client) {
+            return res.status(400).json({
+                message:
+                    "Client does not exist. Please provide a valid Client_id.",
+            });
+        }
+
         const staffMember = await Staff.findOne({
             where: {
                 Staff_id: Staff_id,
@@ -72,6 +83,33 @@ async function createBooking(data, res) {
             return res.status(400).json({
                 message:
                     "Nhân viên không có trong chi nhánh hiện tại vui lòng chọn chi nhánh khác hoặc chọn nhân viên khác.",
+            });
+        }
+
+        const bookingDate = moment.utc(Date_Time).format("YYYY-MM-DD");
+        const bookingTime = moment.utc(Date_Time).format("HH:mm:ss");
+
+        const scheduleDetail = await ScheduleDetail.findOne({
+            where: {
+                Staff_id: Staff_id,
+                Date: {
+                    [Op.eq]: moment.utc(Date_Time).startOf("day").toDate(),
+                },
+            },
+            include: [
+                {
+                    model: Schedule,
+                    where: {
+                        Time: bookingTime,
+                    },
+                },
+            ],
+        });
+
+        if (!scheduleDetail) {
+            return res.status(400).json({
+                message:
+                    "Nhân viên không có trong lịch trình được chọn vào thời gian này. Vui lòng chọn thời gian hoặc nhân viên khác.",
             });
         }
 
