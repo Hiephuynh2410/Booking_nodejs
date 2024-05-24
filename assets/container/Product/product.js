@@ -8,6 +8,9 @@ const {
     updateProduct,
     deleteProduct,
     restoreProduct,
+    filterProductByCategory,
+    filterProductByProdvider,
+    searchProduct,
 } = require("../../../Services/Product.services");
 
 router.use(MyAuthorize);
@@ -73,4 +76,38 @@ router.patch("/restore/:id", async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+
+router.get("/filterByCategory/:productTypeId", async (req, res) => {
+    try {
+        const { productTypeId } = req.params;
+        const products = await filterProductByCategory(productTypeId, res);
+        res.json(products);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.get("/filterByProvider/:providerId", async (req, res) => {
+    try {
+        const { providerId } = req.params;
+        const provider = await filterProductByProdvider(providerId, res);
+        res.json(provider);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.get("/search", async (req, res) => {
+    try {
+        const { query } = req.query;
+        const products = await searchProduct(query);
+        res.json(products);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
 module.exports = router;
