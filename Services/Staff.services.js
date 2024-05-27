@@ -2,8 +2,13 @@ const Staff = require("../models/staff.model");
 const Branch = require("../models/branch.model");
 const Role = require("../models/role.model");
 const bcrypt = require("bcrypt");
-const generateToken = require("../JwtToken/TokenGenerator");
+const {
+    generateToken,
+    generateResetToken,
+} = require("../JwtToken/TokenGenerator");
 const ValidateHelper = require("../ValidateError/ValidateHelper");
+var sendmail = require("../Sendmail/sendMail");
+var config = require("../config/mailConfig");
 
 async function getAllDisabledStaff() {
     try {
@@ -113,6 +118,28 @@ async function loginStaff(username, password) {
     }
 }
 
+async function forgotPassword(email) {
+    try {
+        const staff = await Staff.findOne({ where: { Email: email } });
+        if (staff) {
+            const token = generateToken({
+                StaffId: staff.Staff_id,
+                email: staff.Email,
+            });
+
+            const url = `https://${config.hostName}/api/v1/auth/ResetPassword/${token}`;
+            const message = `Click the following URL to reset your password: ${url}`;
+            await sendmail(message, staff.Email);
+            console.log(staff.Email);
+            return { success: true, message: "Password reset email sent" };
+        } else {
+            return { success: false, message: "Email does not exist" };
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
 async function changeStaffPassword(id, newPassword) {
     try {
         if (!newPassword) {
@@ -181,4 +208,76 @@ module.exports = {
     changeStaffPassword,
     deleteStaff,
     restoreStaff,
+    forgotPassword,
+};
+
+async function changeStaffPassword(id, newPassword) {
+    try {
+        if (!newPassword) {
+            throw new Error("New password is required");
+        }
+
+        const staff = await Staff.findByPk(id);
+        if (!staff) {
+            throw new Error("Staff not found");
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        await staff.update({ Password: hashedNewPassword });
+
+        return { success: true, message: "Password changed successfully" };
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function deleteStaff(staffId, res) {
+    try {
+        const staff = await Staff.findByPk(staffId);
+
+        if (!staff) {
+            throw new Error("Staff not found");
+        }
+
+        staff.IsDisabled = false;
+
+        await staff.save();
+
+        return { success: true, message: "Staff deleted successfully" };
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ message: "delete failed: " + error.message });
+    }
+}
+
+async function restoreStaff(staffId, res) {
+    try {
+        const staff = await Staff.findByPk(staffId);
+
+        if (!staff) {
+            throw new Error("Staff not found");
+        }
+
+        staff.IsDisabled = true;
+
+        await staff.save();
+
+        return { success: true, message: "Staff restore successfully" };
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ message: "delete failed: " + error.message });
+    }
+}
+
+module.exports = {
+    getAllDisabledStaff,
+    registerStaff,
+    loginStaff,
+    changeStaffPassword,
+    deleteStaff,
+    restoreStaff,
+    forgotPassword,
 };

@@ -1,7 +1,6 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = new Sequelize("mysql://root:Hiep2410@127.0.0.1/DLCT");
 
-// Import Branch and Role model
 const Branch = require("../models/branch.model");
 const Role = require("../models/role.model");
 
