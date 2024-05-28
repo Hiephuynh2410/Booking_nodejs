@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const MyAuthorize = require("../../../JwtToken/MyAuthorized");
-const { deleteCombo } = require("../../../Services/Combo.services");
+const {
+    deleteCombo,
+} = require("../../../Services/ComboServices/delete.services");
 router.use(MyAuthorize);
 
 router.delete("/delete/:id", async (req, res) => {

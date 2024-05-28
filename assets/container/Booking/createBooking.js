@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const MyAuthorized = require("../../../JwtToken/MyAuthorized");
 
-const { createBooking } = require("../../../Services/Booking.services");
+const {
+    createBooking,
+} = require("../../../Services/BookingServices/create.services");
 router.use(MyAuthorized);
 
 router.post("/create", async (req, res) => {

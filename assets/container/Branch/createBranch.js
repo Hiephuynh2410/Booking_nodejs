@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const MyAuthorize = require("../../../JwtToken/MyAuthorized");
-const { createbranch } = require("../../../Services/Branch.services");
+const {
+    createbranch,
+} = require("../../../Services/BranchServices/create.services");
 const { json } = require("sequelize");
 
 router.use(MyAuthorize);

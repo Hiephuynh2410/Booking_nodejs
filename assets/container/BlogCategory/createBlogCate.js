@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const MyAuthorize = require("../../../JwtToken/MyAuthorized");
-const { CreateBlogCate } = require("../../../Services/BlogCategory.services");
+const {
+    CreateBlogCate,
+} = require("../../../Services/BlogCategoryServices/create.services");
 router.use(MyAuthorize);
 
 router.post("/create", async (req, res) => {

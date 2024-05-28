@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const MyAuthorized = require("../../../JwtToken/MyAuthorized");
-const { addToCart } = require("../../../Services/Cart.services");
+const {
+    addToCart,
+} = require("../../../Services/CartServices/addToCart.services");
 
 router.use(MyAuthorized);
 

@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const MyAuthorized = require("../../../JwtToken/MyAuthorized");
 
-const { changePass } = require("../../../Services/Client.services");
+const {
+    changePass,
+} = require("../../../Services/ClientServices/changePassword.services");
 
 router.use(MyAuthorized);
 

@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const MyAuthorized = require("../../../JwtToken/MyAuthorized");
 
-const { softDeleteBooking } = require("../../../Services/Booking.services");
+const {
+    softDeleteBooking,
+} = require("../../../Services/BookingServices/delete.services");
 router.use(MyAuthorized);
 
 router.delete("/delete/:id", async (req, res) => {

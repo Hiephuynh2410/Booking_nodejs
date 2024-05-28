@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const MyAuthorizer = require("../../../JwtToken/MyAuthorized");
-const { restoreblog } = require("../../../Services/Blog.services");
+const {
+    restoreblog,
+} = require("../../../Services/BlogServices/restoreServices");
 
 router.use(MyAuthorizer);
 
-// //restore
+//restore
 router.patch("/restore/:id", async (req, res) => {
     try {
         const { id } = req.params;
