@@ -48,20 +48,6 @@ router.post("/login", async (req, res) => {
     }
 });
 
-//change password
-router.put("/changePassword/:id", MyAuthorized, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { Password } = req.body;
-
-        const result = await changeStaffPassword(id, Password);
-        res.json(result);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error");
-    }
-});
-
 //delete staff
 router.delete("/delete/:id", MyAuthorized, async (req, res) => {
     try {
@@ -100,4 +86,30 @@ router.post("/forgotPassword", async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 });
+
+//change password
+// router.put("/changePassword/:id", MyAuthorized, async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const { Password } = req.body;
+//         const result = await changeStaffPassword(id, Password);
+//         res.json(result);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send("Internal Server Error");
+//     }
+// });
+router.put("/changePassword/:token", async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { newPassword } = req.body; // Changed to newPassword for clarity
+
+        const result = await changeStaffPassword(token, newPassword);
+        res.json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
 module.exports = router;

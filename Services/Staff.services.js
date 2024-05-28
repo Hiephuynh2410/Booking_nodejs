@@ -2,6 +2,7 @@ const Staff = require("../models/staff.model");
 const Branch = require("../models/branch.model");
 const Role = require("../models/role.model");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const {
     generateToken,
     generateResetToken,
@@ -127,7 +128,7 @@ async function forgotPassword(email) {
                 email: staff.Email,
             });
 
-            const url = `https://${config.hostName}/api/v1/auth/ResetPassword/${token}`;
+            const url = `https://${config.hostName}/api/v1/staff/changePassword/${token}`;
             const message = `Click the following URL to reset your password: ${url}`;
             await sendmail(message, staff.Email);
             console.log(staff.Email);
@@ -140,95 +141,47 @@ async function forgotPassword(email) {
     }
 }
 
-async function changeStaffPassword(id, newPassword) {
+// when click forgor password, send email to reset password and take id to api changeStaffPassword
+// async function changeStaffPassword(id, newPassword) {
+//     try {
+//         if (!newPassword) {
+//             throw new Error("New password is required");
+//         }
+
+//         const staff = await Staff.findByPk(id);
+//         if (!staff) {
+//             throw new Error("Staff not found");
+//         }
+
+//         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+//         await staff.update({ Password: hashedNewPassword });
+
+//         return { success: true, message: "Password changed successfully" };
+//     } catch (error) {
+//         throw error;
+//     }
+// }
+async function changeStaffPassword(token, newPassword) {
     try {
         if (!newPassword) {
             throw new Error("New password is required");
         }
 
-        const staff = await Staff.findByPk(id);
+        const decoded = jwt.verify(token, process.env.SECRECT_KEY);
+        const staffId = decoded.StaffId;
+
+        const staff = await Staff.findByPk(staffId);
         if (!staff) {
             throw new Error("Staff not found");
         }
 
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
         await staff.update({ Password: hashedNewPassword });
 
         return { success: true, message: "Password changed successfully" };
     } catch (error) {
-        throw error;
-    }
-}
-
-async function deleteStaff(staffId, res) {
-    try {
-        const staff = await Staff.findByPk(staffId);
-
-        if (!staff) {
-            throw new Error("Staff not found");
-        }
-
-        staff.IsDisabled = false;
-
-        await staff.save();
-
-        return { success: true, message: "Staff deleted successfully" };
-    } catch (error) {
-        return res
-            .status(500)
-            .json({ message: "delete failed: " + error.message });
-    }
-}
-
-async function restoreStaff(staffId, res) {
-    try {
-        const staff = await Staff.findByPk(staffId);
-
-        if (!staff) {
-            throw new Error("Staff not found");
-        }
-
-        staff.IsDisabled = true;
-
-        await staff.save();
-
-        return { success: true, message: "Staff restore successfully" };
-    } catch (error) {
-        return res
-            .status(500)
-            .json({ message: "delete failed: " + error.message });
-    }
-}
-
-module.exports = {
-    getAllDisabledStaff,
-    registerStaff,
-    loginStaff,
-    changeStaffPassword,
-    deleteStaff,
-    restoreStaff,
-    forgotPassword,
-};
-
-async function changeStaffPassword(id, newPassword) {
-    try {
-        if (!newPassword) {
-            throw new Error("New password is required");
-        }
-
-        const staff = await Staff.findByPk(id);
-        if (!staff) {
-            throw new Error("Staff not found");
-        }
-
-        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-        await staff.update({ Password: hashedNewPassword });
-
-        return { success: true, message: "Password changed successfully" };
-    } catch (error) {
-        throw error;
+        throw new Error("Error changing password: " + error.message);
     }
 }
 
