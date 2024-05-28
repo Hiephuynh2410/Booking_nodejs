@@ -141,27 +141,6 @@ async function forgotPassword(email) {
     }
 }
 
-// when click forgor password, send email to reset password and take id to api changeStaffPassword
-// async function changeStaffPassword(id, newPassword) {
-//     try {
-//         if (!newPassword) {
-//             throw new Error("New password is required");
-//         }
-
-//         const staff = await Staff.findByPk(id);
-//         if (!staff) {
-//             throw new Error("Staff not found");
-//         }
-
-//         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-//         await staff.update({ Password: hashedNewPassword });
-
-//         return { success: true, message: "Password changed successfully" };
-//     } catch (error) {
-//         throw error;
-//     }
-// }
 async function changeStaffPassword(token, newPassword) {
     try {
         if (!newPassword) {

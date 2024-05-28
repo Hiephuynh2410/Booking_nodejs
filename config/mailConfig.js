@@ -1,5 +1,5 @@
 module.exports = {
-    SECRET_KEY: "TUNG123",
+    SECRET_KEY: "HiephuynhVan",
     EXPIRE_JWT: "1d",
     hostName: "localhost:3000",
     Host: "sandbox.smtp.mailtrap.io",
