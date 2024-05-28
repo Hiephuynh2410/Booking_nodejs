@@ -117,11 +117,11 @@ async function restoreblog(id, res) {
 
         await blog.save();
 
-        return { success: true, message: "blog restore successfully" };
+        return { success: true, message: "blog restored successfully" };
     } catch (error) {
         return res
             .status(500)
-            .json({ message: "delete failed: " + error.message });
+            .json({ message: "restore failed: " + error.message });
     }
 }
 
