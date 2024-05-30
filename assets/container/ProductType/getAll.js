@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const MyAuthorize = require("../../../JwtToken/MyAuthorized");
-const { getAllProductType } = require("../../../Services/ProductType.services");
+const {
+    getAllProductType,
+} = require("../../../Services/ProductTypeServices/GetAll.services");
 
 router.get("/", MyAuthorize, async (req, res) => {
     try {

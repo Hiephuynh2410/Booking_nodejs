@@ -4,7 +4,7 @@ const MyAuthorize = require("../../../JwtToken/MyAuthorized");
 
 const {
     filterProductByCategory,
-} = require("../../../Services/Product.services");
+} = require("../../../Services/ProductServices/filterProductByCategory.services");
 
 router.use(MyAuthorize);
 

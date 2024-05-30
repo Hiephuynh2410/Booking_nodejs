@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const MyAuthorize = require("../../../JwtToken/MyAuthorized");
-const { createProductType } = require("../../../Services/ProductType.services");
+const {
+    createProductType,
+} = require("../../../Services/ProductTypeServices/create.services");
 
 router.post("/create", MyAuthorize, async (req, res) => {
     try {

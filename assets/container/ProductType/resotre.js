@@ -3,7 +3,7 @@ const router = express.Router();
 const MyAuthorize = require("../../../JwtToken/MyAuthorized");
 const {
     restoreProductType,
-} = require("../../../Services/ProductType.services");
+} = require("../../../Services/ProductTypeServices/restore.services");
 
 // //restore
 router.patch("/restore/:id", MyAuthorize, async (req, res) => {

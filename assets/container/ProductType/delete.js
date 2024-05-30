@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const MyAuthorize = require("../../../JwtToken/MyAuthorized");
-const { deleteProductType } = require("../../../Services/ProductType.services");
+const {
+    deleteProductType,
+} = require("../../../Services/ProductTypeServices/delete.services");
 
 // //deleted
 router.delete("/delete/:id", MyAuthorize, async (req, res) => {

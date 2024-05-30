@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const MyAuthorize = require("../../../JwtToken/MyAuthorized");
-const { updateProductType } = require("../../../Services/ProductType.services");
+const {
+    updateProductType,
+} = require("../../../Services/ProductTypeServices/update.services");
 
 // //update
 router.put("/update/:id", async (req, res) => {
