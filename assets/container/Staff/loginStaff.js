@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const { loginStaff } = require("../../../Services/Staff.services");
+const {
+    loginStaff,
+} = require("../../../Services/StaffServices/login.services");
 
 router.post("/login", async (req, res) => {
     try {

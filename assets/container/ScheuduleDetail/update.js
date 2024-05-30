@@ -3,7 +3,7 @@ const router = express.Router();
 const MyAuthorize = require("../../../JwtToken/MyAuthorized");
 const {
     updateScheduleDetail,
-} = require("../../../Services/scheduleDetail.services");
+} = require("../../../Services/scheduleDetailServices/update.services");
 
 router.use(MyAuthorize);
 

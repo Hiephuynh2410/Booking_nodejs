@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { changeStaffPassword } = require("../../../Services/Staff.services");
+const {
+    changeStaffPassword,
+} = require("../../../Services/StaffServices/changePassword.services");
 
 router.put("/changePassword/:token", async (req, res) => {
     try {

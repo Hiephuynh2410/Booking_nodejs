@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const MyAuthorized = require("../../../JwtToken/MyAuthorized");
 
-const { registerStaff } = require("../../../Services/Staff.services");
+const {
+    registerStaff,
+} = require("../../../Services/StaffServices/register.services");
 
 router.post("/register", async (req, res) => {
     try {

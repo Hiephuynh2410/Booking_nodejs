@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const MyAuthorized = require("../../../JwtToken/MyAuthorized");
 
-const { getAllDisabledStaff } = require("../../../Services/Staff.services");
+const {
+    getAllDisabledStaff,
+} = require("../../../Services/StaffServices/getAll.services");
 
 router.get("/", MyAuthorized, async (req, res) => {
     try {

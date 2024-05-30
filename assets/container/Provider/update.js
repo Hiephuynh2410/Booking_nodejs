@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const MyAuthorized = require("../../../JwtToken/MyAuthorized");
-const { updateProvider } = require("../../../Services/Provider.services");
+const {
+    updateProvider,
+} = require("../../../Services/ProviderServices/update.services");
 
 router.use(MyAuthorized);
 

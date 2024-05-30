@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const { forgotPassword } = require("../../../Services/Staff.services");
+const {
+    forgotPassword,
+} = require("../../../Services/StaffServices/forgotPass.services");
 
 router.post("/forgotPassword", async (req, res) => {
     try {

@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const MyAuthorized = require("../../../JwtToken/MyAuthorized");
-const { GetAllServices } = require("../../../Services/Services.services");
+const {
+    GetAllServices,
+} = require("../../../Services/ServicesService/getAll.Services");
 
 router.use(MyAuthorized);
 //get all
