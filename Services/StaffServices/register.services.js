@@ -1,10 +1,5 @@
 const Staff = require("../../models/staff.model");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const {
-    generateToken,
-    generateResetToken,
-} = require("../../JwtToken/TokenGenerator");
 const ValidateHelper = require("../../ValidateError/ValidateHelper");
 
 async function registerStaff(data, res) {
@@ -23,6 +18,11 @@ async function registerStaff(data, res) {
         const isUnique = await ValidateHelper.isUsernameUnique(Username);
         if (!isUnique) {
             throw new Error("Username already exists");
+        }
+
+        const emailExist = await ValidateHelper.isEmailUnique(Email);
+        if (!emailExist) {
+            throw new Error("Email already exists please try to change passwords");
         }
 
         const isValidPassword = await ValidateHelper.RegexPassword(Password);

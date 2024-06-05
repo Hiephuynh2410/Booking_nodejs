@@ -11,6 +11,17 @@ async function isUsernameUnique(username) {
   }
 }
 
+async function isEmailUnique(email) {
+  try {
+    const existingStaff = await Staff.findOne({
+      where: { Email: email },
+    });
+    return !existingStaff;
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function RegexPassword(password) {
   try {
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,32}$/;
@@ -26,4 +37,5 @@ async function RegexPassword(password) {
 module.exports = {
   isUsernameUnique,
   RegexPassword,
+  isEmailUnique
 };
