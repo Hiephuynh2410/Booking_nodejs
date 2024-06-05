@@ -18,6 +18,10 @@ router.use("/staff", require("../assets/container/Staff/restoreStaff"));
 router.use("/staff", require("../assets/container/Staff/forgotPasswordStaff"));
 router.use("/staff", require("../assets/container/Staff/changePassword"));
 
+//buynow
+router.use("/buynow", require("../assets/container/BuyNow/buyNow"));
+
+
 //services Type
 router.use(
     "/services-type",
